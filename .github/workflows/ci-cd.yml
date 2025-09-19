@@ -1,4 +1,44 @@
-# 6️⃣ Actualizar Helm Chart en Repo B
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-update:
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      # 1️⃣ Clonar Repo A (código)
+      - name: Checkout Repo A
+        uses: actions/checkout@v3
+
+      # 2️⃣ Configurar Docker
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
+
+      # 3️⃣ Login en Docker Hub
+      - name: Docker Login
+        run: |
+          echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+
+      # 4️⃣ Construir y subir la imagen
+      - name: Build and Push Docker Image
+        run: |
+          chmod +x ./build-and-push.sh
+          ./build-and-push.sh
+
+      # 5️⃣ Generar el tag de la imagen
+      - name: Set image tag
+        run: echo "TAG=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
+
+      # 6️⃣ Clonar Repo B y actualizar Helm Chart
+     # 6️⃣ Actualizar Helm Chart en Repo B
 - name: Update Helm Chart in Repo B
   env:
     REPO_B_TOKEN: ${{ secrets.REPO_B_TOKEN }}
@@ -21,4 +61,3 @@
     git add charts/mini-stack/values.yaml
     git commit -m "Update image tag to $TAG"
     git push https://$REPO_B_TOKEN@github.com/jreb-123/.ks8-final-project main
-
