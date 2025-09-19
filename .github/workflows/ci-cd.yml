@@ -38,25 +38,25 @@ jobs:
         run: echo "TAG=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
 
       # 6️⃣ Clonar Repo B y actualizar Helm Chart
-- name: Update Helm Chart in Repo B
-  env:
-    REPO_B_TOKEN: ${{ secrets.REPO_B_TOKEN }}
-  run: |
-    # Clonar Repo B usando el token seguro
-    git clone https://$REPO_B_TOKEN@github.com/jreb-123/.ks8-final-project repo-b
-    cd repo-b
+      - name: Update Helm Chart in Repo B
+        env:
+          REPO_B_TOKEN: ${{ secrets.REPO_B_TOKEN }}
+        run: |
+          # Clonar Repo B usando el token seguro
+          git clone https://$REPO_B_TOKEN@github.com/jreb-123/.ks8-final-project repo-b
+          cd repo-b
 
-    echo "=== Antes ==="
-    cat charts/mini-stack/values.yaml
+          echo "=== Antes ==="
+          cat charts/mini-stack/values.yaml
 
-    # Actualizar tag de la imagen
-    sed -i "s/tag:.*/tag: $TAG/" charts/mini-stack/values.yaml
+          # Actualizar tag de la imagen
+          sed -i "s/tag:.*/tag: $TAG/" charts/mini-stack/values.yaml
 
-    echo "=== Después ==="
-    cat charts/mini-stack/values.yaml
+          echo "=== Después ==="
+          cat charts/mini-stack/values.yaml
 
-    git config user.name "GitHub Actions"
-    git config user.email "actions@github.com"
-    git add charts/mini-stack/values.yaml
-    git commit -m "Update image tag to $TAG"
-    git push https://$REPO_B_TOKEN@github.com/jreb-123/.ks8-final-project main
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add charts/mini-stack/values.yaml
+          git commit -m "Update image tag to $TAG"
+          git push https://$REPO_B_TOKEN@github.com/jreb-123/.ks8-final-project main
