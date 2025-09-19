@@ -38,7 +38,6 @@ jobs:
         run: echo "TAG=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
 
       # 6️⃣ Clonar Repo B y actualizar Helm Chart
-     # 6️⃣ Actualizar Helm Chart en Repo B
 - name: Update Helm Chart in Repo B
   env:
     REPO_B_TOKEN: ${{ secrets.REPO_B_TOKEN }}
