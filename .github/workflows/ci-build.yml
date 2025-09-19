@@ -1,0 +1,33 @@
+name: CI Build and Push
+
+# 🔹 Paso 1: disparador del workflow
+on:
+  push:
+    branches:
+      - main   # <- Pista: esto indica que solo se ejecuta en la rama principal
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest   # <- Pista: runner en Linux para ejecutar Docker y scripts
+
+    steps:
+      # 🔹 Paso 2: hacer checkout del repo
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 🔹 Paso 3: configurar Docker Hub (opcional)
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}  # <- Pista: crea este secreto en GitHub
+          password: ${{ secrets.DOCKER_PASSWORD }}  # <- Pista: tu password o token de Docker Hub
+
+      # 🔹 Paso 4: ejecutar el script de construcción
+      - name: Build and push Docker image
+        run: |
+          # Pista: tu script ya debe hacer:
+          # 1️⃣ Construir la imagen
+          # 2️⃣ Etiquetarla con SHA del commit
+          # 3️⃣ Hacer push al Docker Hub
+          bash ./build-and-push.sh
+
