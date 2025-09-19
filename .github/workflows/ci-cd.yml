@@ -6,15 +6,14 @@ on:
       - main
 
 jobs:
-  build-and-update:
+  build-and-deploy:
     runs-on: ubuntu-latest
     env:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      REPO_B_TOKEN: ${{ secrets.REPO_B_TOKEN }}
 
     steps:
-      # 1️⃣ Checkout Repo A (código de la app)
+      # 1️⃣ Checkout del código (Repo A)
       - name: Checkout Repo A
         uses: actions/checkout@v3
 
@@ -33,32 +32,29 @@ jobs:
           chmod +x ./build-and-push.sh
           ./build-and-push.sh
 
-      # 5️⃣ Generar tag único para la imagen
+      # 5️⃣ Generar un tag único para la imagen
       - name: Set image tag
         run: echo "TAG=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
 
-      # 6️⃣ Clonar Repo B y actualizar Helm Chart
+      # 6️⃣ Checkout Repo B usando token seguro
+      - name: Checkout Repo B
+        uses: actions/checkout@v3
+        with:
+          repository: jreb-123/.ks8-final-project
+          token: ${{ secrets.REPO_B_TOKEN }}
+          path: repo-b
+
+      # 7️⃣ Actualizar Helm Chart en Repo B
       - name: Update Helm Chart in Repo B
         run: |
-          # Clonar Repo B usando token seguro
-          git clone https://$REPO_B_TOKEN:x-oauth-basic@github.com/jreb-123/.ks8-final-project repo-b
           cd repo-b
-
           echo "=== Antes ==="
           cat charts/mini-stack/values.yaml
-
-          # Actualizar tag de la imagen en values.yaml
           sed -i "s/tag:.*/tag: $TAG/" charts/mini-stack/values.yaml
-
           echo "=== Después ==="
           cat charts/mini-stack/values.yaml
-
-          # Configurar Git y hacer commit
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add charts/mini-stack/values.yaml
           git commit -m "Update image tag to $TAG"
-
-          # Push usando token seguro
-          git push https://$REPO_B_TOKEN:x-oauth-basic@github.com/jreb-123/.ks8-final-project main
-
+          git push
